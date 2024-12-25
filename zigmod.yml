@@ -1,0 +1,6 @@
+id: lfde4y7yq4ffs922pi7tgpfpmhn2mlluloh18570tmibh7br
+name: seeker
+license: MIT
+description: A search engine
+root_dependencies:
+  - src: git https://github.com/chadwain/rem
