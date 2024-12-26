@@ -1,6 +1,7 @@
 const std = @import("std");
 const rem = @import("rem");
 const extractor = @import("extractor.zig");
+const lexing = @import("lexer.zig");
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -20,9 +21,20 @@ pub fn main() !void {
 
     try parser.run();
 
-    const texts = try extractor.extract_text(parser.getDocument());
-    defer texts.deinit();
-    std.debug.print("DEBUG: Texts ({d}): {s}\n", .{ texts.items.len, texts.items });
+    const text = try extractor.extract_text(parser.getDocument());
+    defer text.deinit();
+
+    var arena = std.heap.ArenaAllocator.init(allocator);
+    defer arena.deinit();
+    const arena_allocator = arena.allocator();
+
+    var lexer = lexing.Lexer.init(text.items);
+    const tokens = try lexer.tokenize(arena_allocator);
+    defer tokens.deinit();
+
+    for (tokens.items) |token| {
+        std.debug.print("Token: {s}\n", .{token});
+    }
 }
 
 pub fn readFile(allocator: std.mem.Allocator, file_path: []const u8) ![]u8 {
