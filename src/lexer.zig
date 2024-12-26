@@ -1,11 +1,12 @@
 const std = @import("std");
+const util = @import("util.zig");
 
 pub const Lexer = struct {
     text: []u8,
     cursor: usize,
 
     pub fn init(text: []u8) Lexer {
-        return Lexer { .text = text, .cursor = 0 };
+        return Lexer{ .text = text, .cursor = 0 };
     }
 
     pub fn tokenize(lexer: *Lexer, allocator: std.mem.Allocator) !std.ArrayList([]u8) {
@@ -32,7 +33,7 @@ pub const Lexer = struct {
         return tokens;
     }
 
-    fn take_while(lexer: *Lexer, allocator: std.mem.Allocator, f: fn(u8) bool) !std.ArrayList(u8) {
+    fn take_while(lexer: *Lexer, allocator: std.mem.Allocator, f: fn (u8) bool) !std.ArrayList(u8) {
         var elements = std.ArrayList(u8).init(allocator);
 
         while (lexer.cursor < lexer.text.len) {
@@ -40,7 +41,11 @@ pub const Lexer = struct {
             if (!f(c)) {
                 break;
             }
-            try elements.append(c);
+            if (c >= 'A' and c <= 'Z') {
+                try elements.append(c + 32);
+            } else {
+                try elements.append(c);
+            }
             lexer.cursor += 1;
         }
 
@@ -49,5 +54,9 @@ pub const Lexer = struct {
 
     fn is_char_alphanumeric(c: u8) bool {
         return (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or (c >= '0' and c <= '9');
+    }
+
+    fn is_not_blank(c: u8) bool {
+        return c != ' ' and c != '\n' and c != '\t' and c != '\r' and c != ';';
     }
 };
