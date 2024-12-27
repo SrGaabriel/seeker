@@ -42,7 +42,7 @@ pub fn getFrequency(
     return pairs[0..limit];
 }
 
-pub const ArrayContext = struct {
+const ArrayContext = struct {
     pub fn hash(_: ArrayContext, key: []u8) u32 {
         var h = std.hash.Fnv1a_32.init();
         h.update(key);
@@ -50,6 +50,18 @@ pub const ArrayContext = struct {
     }
 
     pub fn eql(_: ArrayContext, left: []u8, right: []u8, _: usize) bool {
+        return std.mem.eql(u8, left, right);
+    }
+};
+
+const ImmutableArrayContext = struct {
+    pub fn hash(_: ImmutableArrayContext, key: []const u8) u32 {
+        var h = std.hash.Fnv1a_32.init();
+        h.update(key);
+        return h.final();
+    }
+
+    pub fn eql(_: ImmutableArrayContext, left: []const u8, right: []const u8, _: usize) bool {
         return std.mem.eql(u8, left, right);
     }
 };
@@ -62,3 +74,6 @@ pub const SortingStrategy = struct {
         return a.mentions > b.mentions;
     }
 };
+
+pub const PageDictionary: type =
+    std.ArrayHashMap([]const u8,[]Frequency, ImmutableArrayContext, true);

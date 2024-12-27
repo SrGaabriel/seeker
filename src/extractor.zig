@@ -9,7 +9,6 @@ pub fn extract_text(document: *rem.Dom.Document) !std.ArrayList(u8) {
     const element = document.element;
 
     if (element) |e| {
-        std.debug.print("DEBUG: Root has {d} children\n", .{e.children.items.len});
         var texts_array = std.ArrayList([]u8).init(std.heap.page_allocator);
         defer texts_array.deinit();
 
